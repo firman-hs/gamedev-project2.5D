@@ -8,13 +8,13 @@ public class Player : MonoBehaviour
 
     [Header("Settings")]
     [SerializeField] private float gravity = 5f;
-    [SerializeField] private float moveSpeed = 5f;
+    [SerializeField] private float moveSpeed = 15f;
 
     [Header("UI")]
     [SerializeField] private TextMeshProUGUI indicatorText;
 
     private Rigidbody rb;
-    private Transform cameraPosition;
+    private Transform currentHidingSpot;
     private Vector3 moveInput;
     private bool isHidden = false;
     private bool isNearHideBox = false;
@@ -22,7 +22,6 @@ public class Player : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-        cameraPosition = Camera.main.transform;
         indicatorText.enabled = false;
 
     }
@@ -30,7 +29,6 @@ public class Player : MonoBehaviour
     void Update()
     {
         HandleMovement();
-        HandleCamera();
 
         if (isNearHideBox && Input.GetKeyDown(KeyCode.E))
         {
@@ -50,6 +48,7 @@ public class Player : MonoBehaviour
             isNearHideBox = true;
             indicatorText.enabled = true;
             indicatorText.text = "Tekan 'E' untuk bersembunyi";
+            currentHidingSpot = other.transform;
         }
     }
 
@@ -59,6 +58,7 @@ public class Player : MonoBehaviour
         {
             isNearHideBox = false;
             indicatorText.enabled = false;
+            currentHidingSpot = null;
         }
     }
 
@@ -72,6 +72,7 @@ public class Player : MonoBehaviour
 
         moveInput.x = Input.GetAxisRaw("Horizontal");
         moveInput.z = Input.GetAxisRaw("Vertical");
+        moveInput = moveInput.normalized;
 
         if (moveInput.x > 0)
         {
@@ -85,27 +86,21 @@ public class Player : MonoBehaviour
         rb.velocity = moveInput * moveSpeed;
     }
 
-    private void HandleCamera()
-    {
-        Vector3 playerPosition = transform.position;
-        float cameraOffsetZ = -10f;
-        cameraPosition.position = new Vector3(playerPosition.x, cameraPosition.position.y, playerPosition.z + cameraOffsetZ);
-    }
-
     public void ToggleHide()
     {
         isHidden = !isHidden;
-        SetChildrenRenderers(isHidden);
-    }
-
-    private void SetChildrenRenderers(bool hide)
-    {
-        foreach (Transform child in transform)
+        if (isHidden)
         {
-            child.gameObject.SetActive(!hide);
+            transform.position = currentHidingSpot.position;
         }
-
-        Debug.Log("Player bersembunyi = " + hide);
+        else
+        {
+            Vector3 exitPosition = currentHidingSpot.position;
+            exitPosition.z += -2f;
+            transform.position = exitPosition;
+        }
+        
+        sprite.enabled = !isHidden;
     }
 
 }

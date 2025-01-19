@@ -32,10 +32,22 @@ public class InventoryManager : MonoBehaviour
         return false;
     }
 
-    public void SpawnNewItem(Barang barang, InventorySlot slot)
+    void SpawnNewItem(Barang barang, InventorySlot slot)
     {
         GameObject newItemGO = Instantiate(inventoryItemPrefab, slot.transform);
         InventoryItem inventoryItem = newItemGO.GetComponent<InventoryItem>();
         inventoryItem.InitialiseItem(barang);
+    }
+
+    public Barang GetSelectedItem()
+    {
+        InventorySlot slot = inventorySlots[1];
+        InventoryItem itemInSlot = slot.GetComponentInChildren<InventoryItem>();
+        if (itemInSlot != null)
+        {
+            return itemInSlot.barang;
+        }
+
+        return null;
     }
 }

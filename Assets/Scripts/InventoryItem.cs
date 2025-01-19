@@ -6,7 +6,7 @@ public class InventoryItem : MonoBehaviour
     [Header("UI")]
     [SerializeField] private Image image;
 
-    [HideInInspector] private Barang barang;
+    [HideInInspector] public Barang barang;
     
     public void InitialiseItem(Barang barangBaru)
     {

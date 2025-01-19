@@ -19,6 +19,7 @@ public enum ItemType
 {
     Kunci,
     Sesajen,
+    Catatan,
     Penyembuh
 }
 
@@ -26,5 +27,6 @@ public enum ActionType
 {
     Membuka,
     Menaruh,
+    Membaca,
     Menyembuhkan
 }
