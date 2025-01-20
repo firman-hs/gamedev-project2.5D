@@ -12,8 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc21c667a9106714d82ca6a0144b4a9b, type: 3}
   m_Name: Diari
   m_EditorClassIdentifier: 
-  type: 2
-  actionType: 1
-  range: {x: 5, y: 4}
-  stackable: 0
+  type: 1
+  action: 2
+  unlockID: 0
+  healAmount: 0
+  effectDuration: 0
+  description: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean sit
+    amet vulputate tortor. Nam eget scelerisque nibh. Nam et enim id magna facilisis
+    maximus
+  name: Buku Diari
   image: {fileID: 21300000, guid: e13c09343701c914db63a5c21d627c76, type: 3}

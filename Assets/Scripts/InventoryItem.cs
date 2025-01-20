@@ -6,11 +6,11 @@ public class InventoryItem : MonoBehaviour
     [Header("UI")]
     [SerializeField] private Image image;
 
-    [HideInInspector] public Barang barang;
+    [HideInInspector] public Barang item;
     
-    public void InitialiseItem(Barang barangBaru)
+    public void InitialiseItem(Barang newItem)
     {
-        barang = barangBaru;
-        image.sprite = barangBaru.image;
+        item = newItem;
+        image.sprite = newItem.image;
     }
 }

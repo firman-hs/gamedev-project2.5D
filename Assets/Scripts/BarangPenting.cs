@@ -5,7 +5,7 @@ public class BarangPenting : MonoBehaviour
 {
     [Header("Inisialisasi")]
     [SerializeField] private SpriteRenderer image;
-    [SerializeField] private Barang barang;
+    [SerializeField] private Barang item;
 
     [Header("UI")]
     [SerializeField] private TextMeshProUGUI indicatorText;
@@ -15,7 +15,7 @@ public class BarangPenting : MonoBehaviour
 
     private void Start()
     {
-        image.sprite = barang.image;
+        image.sprite = item.image;
         inventoryManager = InventoryManager.instance;
     }
 
@@ -23,7 +23,7 @@ public class BarangPenting : MonoBehaviour
     {
         if (isPlayerNearby && Input.GetKeyDown(KeyCode.E))
         {
-            bool result = inventoryManager.AddItem(barang);
+            bool result = inventoryManager.AddItem(item);
             if (result)
             {
                 Destroy(gameObject);
@@ -44,7 +44,7 @@ public class BarangPenting : MonoBehaviour
         {
             isPlayerNearby = true;
             indicatorText.enabled = true;
-            indicatorText.text = "Ada " + barang.name;
+            indicatorText.text = "Ada " + item.name;
 }
     }
 
