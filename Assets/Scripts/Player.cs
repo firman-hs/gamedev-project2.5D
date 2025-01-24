@@ -5,11 +5,13 @@ public class Player : MonoBehaviour
 {
     [Header("Inisialisasi")]
     [SerializeField] private SpriteRenderer sprite;
+    [SerializeField] private Animator anime;
 
     [Header("Settings")]
     [SerializeField] private float gravity = 5f;
     [SerializeField] private float moveSpeed = 15f;
-
+    [SerializeField] private float runSpeed = 25f;  // Tambahkan kecepatan saat berlari
+        
     [Header("UI")]
     [SerializeField] private TextMeshProUGUI indicatorText;
 
@@ -18,12 +20,12 @@ public class Player : MonoBehaviour
     private Vector3 moveInput;
     private bool isHidden = false;
     private bool isNearHideBox = false;
+    private bool isRunning = false; // Tambahkan variabel untuk mengecek apakah sedang berlari
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         indicatorText.enabled = false;
-
     }
 
     void Update()
@@ -74,6 +76,40 @@ public class Player : MonoBehaviour
         moveInput.z = Input.GetAxisRaw("Vertical");
         moveInput = moveInput.normalized;
 
+        // Cek jika tombol Shift ditekan
+        if (Input.GetKey(KeyCode.LeftShift))
+        {
+            isRunning = true;
+        }
+        else
+        {
+            isRunning = false;
+        }
+
+        float currentSpeed = isRunning ? runSpeed : moveSpeed;
+        rb.velocity = moveInput * currentSpeed;
+
+          if (moveInput != Vector3.zero)
+    {
+        if (isRunning)
+        {
+            anime.SetBool("move-left-run", true);
+            anime.SetBool("move-left", false);
+        }
+        else
+        {
+            anime.SetBool("move-left-run", false);
+            anime.SetBool("move-left", true);
+        }
+    }
+    else
+    {
+        anime.SetBool("move-left", false);
+        anime.SetBool("move-left-run", false);
+    }
+
+
+        // Membalik sprite sesuai arah pergerakan
         if (moveInput.x > 0)
         {
             sprite.flipX = true;
@@ -82,8 +118,6 @@ public class Player : MonoBehaviour
         {
             sprite.flipX = false;
         }
-
-        rb.velocity = moveInput * moveSpeed;
     }
 
     public void ToggleHide()
@@ -102,5 +136,4 @@ public class Player : MonoBehaviour
         
         sprite.enabled = !isHidden;
     }
-
 }
