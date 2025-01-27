@@ -120,5 +120,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   image: {fileID: 5056661357179339541}
-  barang: {fileID: 0}
-  indicatorText: {fileID: 0}
+  item: {fileID: 0}
+  message: Ambil
+  interactionKey: 101

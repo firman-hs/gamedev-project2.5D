@@ -1,44 +1,55 @@
 using UnityEngine;
-using TMPro;
 
 public class BarangPenting : MonoBehaviour
 {
     [Header("Inisialisasi")]
     [SerializeField] private SpriteRenderer image;
     [SerializeField] private Barang item;
-
-    [Header("UI")]
-    [SerializeField] private TextMeshProUGUI indicatorText;
+    [SerializeField] private string message;
+    [SerializeField] private KeyCode interactionKey;
 
     private InventoryManager inventoryManager;
     private bool isPlayerNearby = false;
+    private string newMessage;
 
     private void Start()
     {
         image.sprite = item.image;
         inventoryManager = InventoryManager.instance;
+        newMessage = $"{message} {item.name} ({interactionKey})";
     }
 
     private void Update()
     {
-        if (isPlayerNearby && Input.GetKeyDown(KeyCode.E))
+        if (isPlayerNearby && Input.GetKeyDown(interactionKey))
         {
-            bool result = inventoryManager.AddItem(item);
-            if (result)
+            if(item.type != ItemType.Consumable )
             {
-                Destroy(gameObject);
-                indicatorText.enabled = false;
+                inventoryManager.AddKeyItem(item);
 
+                Destroy(gameObject);
+                HUDController.instance.DisableInteractionText();
                 Debug.Log("Item berhasil disimpan");
             }
             else
             {
-                Barang swapItem = inventoryManager.ChangeItem(item);
-                item = swapItem;
-                image.sprite = item.image;
-                indicatorText.text = "Ada " + item.name;
+                bool result = inventoryManager.AddItem(item);
+                if (result)
+                {
+                    Destroy(gameObject);
+                    HUDController.instance.DisableInteractionText();
+                    Debug.Log("Item berhasil disimpan");
+                }
+                else
+                {
+                    Barang swapItem = inventoryManager.ChangeItem(item);
+                    item = swapItem;
+                    image.sprite = item.image;
 
-                Debug.Log("Item berhasil diganti");
+                    newMessage = $"{message} {item.name} ({interactionKey})";
+                    HUDController.instance.EnableInteractionText(newMessage);
+                    Debug.Log("Item berhasil diganti");
+                }
             }
         }
     }
@@ -49,9 +60,9 @@ public class BarangPenting : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             isPlayerNearby = true;
-            indicatorText.enabled = true;
-            indicatorText.text = "Ada " + item.name;
-}
+            
+            HUDController.instance.EnableInteractionText(newMessage);
+        }
     }
 
     private void OnTriggerExit(Collider other)
@@ -59,7 +70,8 @@ public class BarangPenting : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             isPlayerNearby = false;
-            indicatorText.enabled = false;
+
+            HUDController.instance.DisableInteractionText();
         }
     }
 }

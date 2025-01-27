@@ -1,4 +1,5 @@
 using UnityEngine;
+using TMPro;
 
 public class InventoryManager : MonoBehaviour
 {
@@ -8,14 +9,17 @@ public class InventoryManager : MonoBehaviour
     public GameObject inventoryItemPrefab;
 
     [Header("Pegangan")]
-    public InventorySlot[] inventorySlots;
+    public InventorySlot[] peganganSlots;
 
     [Header("Tas")]
     public Tas tas;
-    private bool isShown = false;
+    public InventorySlot[] inventorySlots;
+    public TMP_Text itemName;
+    public TMP_Text description;
 
-
+    bool isShown = false;
     int selectedSlot = -1;
+    int activeSlotIndex = -1;
 
     private void Awake()
     {
@@ -29,9 +33,9 @@ public class InventoryManager : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Q))
+        if (!isShown && Input.GetKeyDown(KeyCode.Q))
         {
-            int newSlot = (selectedSlot + 1) % inventorySlots.Length;
+            int newSlot = (selectedSlot + 1) % peganganSlots.Length;
             ChangeSelectedSlot(newSlot);
         }
 
@@ -44,22 +48,32 @@ public class InventoryManager : MonoBehaviour
         {
             ToggleInventory();
         }
+
+        if (isShown && Input.GetKeyDown(KeyCode.Q))
+        {
+            ChangeActiveSlot(-1); // Berpindah ke slot sebelumnya
+        }
+
+        if (isShown && Input.GetKeyDown(KeyCode.E))
+        {
+            ChangeActiveSlot(1); // Berpindah ke slot berikutnya
+        }
     }
 
     void ChangeSelectedSlot(int newValue)
     {
         if (selectedSlot >= 0)
         {
-            inventorySlots[selectedSlot].Deselect();
+            peganganSlots[selectedSlot].Deselect();
         }
 
-        inventorySlots[newValue].Select();
+        peganganSlots[newValue].Select();
         selectedSlot = newValue;
     }
 
     public Barang ChangeItem(Barang item)
     {
-        InventorySlot slot = inventorySlots[selectedSlot];
+        InventorySlot slot = peganganSlots[selectedSlot];
         InventoryItem itemInSlot = slot.GetComponentInChildren<InventoryItem>();
         Barang barang = itemInSlot.item;
 
@@ -70,9 +84,9 @@ public class InventoryManager : MonoBehaviour
 
     public bool AddItem(Barang item)
     {
-        for (int i = 0; i < inventorySlots.Length; i++)
+        for (int i = 0; i < peganganSlots.Length; i++)
         {
-            InventorySlot slot = inventorySlots[i];
+            InventorySlot slot = peganganSlots[i];
             InventoryItem itemInSlot = slot.GetComponentInChildren<InventoryItem>();
             if (itemInSlot == null)
             {
@@ -84,6 +98,20 @@ public class InventoryManager : MonoBehaviour
         return false;
     }
 
+    public void AddKeyItem(Barang item)
+    {
+        for (int i = 0; i < inventorySlots.Length; i++)
+        {
+            InventorySlot slot = inventorySlots[i];
+            InventoryItem itemInSlot = slot.GetComponentInChildren<InventoryItem>();
+            if (itemInSlot == null)
+            {
+                SpawnNewItem(item, slot);
+                return;
+            }
+        }
+    }
+
     void SpawnNewItem(Barang item, InventorySlot slot)
     {
         GameObject newItemGO = Instantiate(inventoryItemPrefab, slot.transform);
@@ -93,7 +121,7 @@ public class InventoryManager : MonoBehaviour
 
     public Barang GetSelectedItem()
     {
-        InventorySlot slot = inventorySlots[selectedSlot];
+        InventorySlot slot = peganganSlots[selectedSlot];
         InventoryItem itemInSlot = slot.GetComponentInChildren<InventoryItem>();
         if (itemInSlot != null)
         {
@@ -109,11 +137,69 @@ public class InventoryManager : MonoBehaviour
     public void ToggleInventory()
     {
         isShown = !isShown;
-        
+
         tas.gameObject.SetActive(isShown);
-        
+
+        if (isShown)
+        {
+            ShowSlot(0);
+        }
+        else
+        {
+            HideAllSlots();
+        }
+
         Time.timeScale = isShown ? 0 : 1;
         Debug.Log("Inventory ditampilkan = " + isShown);
+    }
+
+    private void ShowSlot(int index)
+    {
+        HideAllSlots();
+        
+        if (index >= 0 && index < inventorySlots.Length)
+        {
+            InventorySlot slot = inventorySlots[index];
+            InventoryItem itemInSlot = slot.GetComponentInChildren<InventoryItem>();
+            if (itemInSlot != null)
+            {
+                slot.gameObject.SetActive(true);
+                itemName.text = itemInSlot.item.name;
+                description.text = itemInSlot.item.description;
+
+                activeSlotIndex = index;
+            }
+        }
+    }
+
+    private void HideAllSlots()
+    {
+        foreach (var slot in inventorySlots)
+        {
+            slot.gameObject.SetActive(false);
+        }
+    }
+
+    public void ChangeActiveSlot(int direction)
+    {
+        if (!isShown) return;
+
+        int nextIndex = activeSlotIndex + direction;
+        
+        while (nextIndex >= 0 && nextIndex < inventorySlots.Length)
+        {
+            InventorySlot slot = inventorySlots[nextIndex];
+            InventoryItem itemInSlot = slot.GetComponentInChildren<InventoryItem>();
+            if (itemInSlot != null)
+            {
+                ShowSlot(nextIndex);
+                return;
+            }
+
+            nextIndex += direction;
+        }
+
+        Debug.Log("Tidak ada slot yang tersedia ke arah: " + direction);
     }
 
 }
