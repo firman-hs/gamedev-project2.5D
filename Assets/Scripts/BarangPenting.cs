@@ -27,12 +27,18 @@ public class BarangPenting : MonoBehaviour
             if (result)
             {
                 Destroy(gameObject);
-                Debug.Log("Item berhasil disimpan");
                 indicatorText.enabled = false;
+
+                Debug.Log("Item berhasil disimpan");
             }
             else
             {
-                Debug.Log("Gagal tersimpan");
+                Barang swapItem = inventoryManager.ChangeItem(item);
+                item = swapItem;
+                image.sprite = item.image;
+                indicatorText.text = "Ada " + item.name;
+
+                Debug.Log("Item berhasil diganti");
             }
         }
     }

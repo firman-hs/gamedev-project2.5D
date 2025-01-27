@@ -1,29 +1,39 @@
 using UnityEngine;
 using TMPro;
+using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
     [Header("Inisialisasi")]
     [SerializeField] private SpriteRenderer sprite;
+    [SerializeField] private float maxStamina = 100f;
 
     [Header("Settings")]
     [SerializeField] private float gravity = 5f;
     [SerializeField] private float moveSpeed = 15f;
+    [SerializeField] private float staminaDrainRate = 10f;
+    [SerializeField] private float staminaRegenRate = 5f;
+    [SerializeField] private float minStaminaToRun = 10f;
 
     [Header("UI")]
     [SerializeField] private TextMeshProUGUI indicatorText;
+    [SerializeField] private Slider staminaBar;
 
     private Rigidbody rb;
     private Transform currentHidingSpot;
     private Vector3 moveInput;
     private bool isHidden = false;
     private bool isNearHideBox = false;
+    private bool isExhausted = false;
+    private float currentStamina;
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         indicatorText.enabled = false;
-
+        currentStamina = maxStamina;
+        staminaBar.maxValue = maxStamina;
+        staminaBar.value = currentStamina;
     }
 
     void Update()
@@ -34,6 +44,8 @@ public class Player : MonoBehaviour
         {
             ToggleHide();
         }
+
+        staminaBar.value = currentStamina;
     }
 
     void FixedUpdate()
@@ -74,6 +86,31 @@ public class Player : MonoBehaviour
         moveInput.z = Input.GetAxisRaw("Vertical");
         moveInput = moveInput.normalized;
 
+        bool isRunning = Input.GetKey(KeyCode.LeftShift) && !isExhausted;
+        float currentSpeed = isRunning ? moveSpeed * 1.5f : moveSpeed;
+
+        if (isRunning)
+        {
+            currentStamina -= staminaDrainRate * Time.deltaTime;
+            currentStamina = Mathf.Clamp(currentStamina, 0, maxStamina);
+
+            if (currentStamina <= 0)
+            {
+                isExhausted = true;
+            }
+        }
+        else
+        {
+            currentStamina += staminaRegenRate * Time.deltaTime;
+            currentStamina = Mathf.Clamp(currentStamina, 0, maxStamina);
+
+            if (currentStamina >= minStaminaToRun)
+            {
+                isExhausted = false;
+            }
+        }
+
+
         if (moveInput.x > 0)
         {
             sprite.flipX = true;
@@ -83,7 +120,7 @@ public class Player : MonoBehaviour
             sprite.flipX = false;
         }
 
-        rb.velocity = moveInput * moveSpeed;
+        rb.velocity = moveInput * currentSpeed;
     }
 
     public void ToggleHide()

@@ -57,6 +57,17 @@ public class InventoryManager : MonoBehaviour
         selectedSlot = newValue;
     }
 
+    public Barang ChangeItem(Barang item)
+    {
+        InventorySlot slot = inventorySlots[selectedSlot];
+        InventoryItem itemInSlot = slot.GetComponentInChildren<InventoryItem>();
+        Barang barang = itemInSlot.item;
+
+        itemInSlot.InitialiseItem(item);
+
+        return barang;
+    }
+
     public bool AddItem(Barang item)
     {
         for (int i = 0; i < inventorySlots.Length; i++)
@@ -102,7 +113,7 @@ public class InventoryManager : MonoBehaviour
         tas.gameObject.SetActive(isShown);
         
         Time.timeScale = isShown ? 0 : 1;
-        Debug.Log("Inventory ditampilkan = " + !isShown);
+        Debug.Log("Inventory ditampilkan = " + isShown);
     }
 
 }
